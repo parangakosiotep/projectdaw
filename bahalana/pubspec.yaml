@@ -1,0 +1,18 @@
+name: bahalana
+description: "bulletin_bot"
+publish_to: 'none' 
+version: 1.0.0+1
+environment:
+  sdk: ^3.9.2
+dependencies:
+  flutter:
+    sdk: flutter
+  # For Firebase Core functionality
+  firebase_core: ^4.2.1 
+  # For Realtime Database
+  firebase_database: ^12.1.0 
+  # For Gemini
+  # Note: The `google_generative_ai` package is now officially replaced
+  # by `firebase_ai` for Flutter production apps which offers more security.
+  # If you want to use the recommended package, use:
+  google_generative_ai: ^0.8.0
