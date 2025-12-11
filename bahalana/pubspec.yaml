@@ -15,4 +15,4 @@ dependencies:
   # Note: The `google_generative_ai` package is now officially replaced
   # by `firebase_ai` for Flutter production apps which offers more security.
   # If you want to use the recommended package, use:
-  google_generative_ai: ^0.8.0
+  google_generative_ai: ^0.4.7
