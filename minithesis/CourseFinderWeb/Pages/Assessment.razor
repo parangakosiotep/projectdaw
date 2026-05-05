@@ -1,0 +1,204 @@
+@page "/assessment"
+@inject NavigationManager Navigation
+@using CourseFinderWeb.Models
+
+<div style="padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 80vh;">
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 class="section-title">Assessment</h2>
+        <p class="section-subtitle">Swipe right if it sounds like you. Swipe left if not.</p>
+        <p style="color: var(--primary-light); font-weight: bold;">
+            Card @(_currentIndex + 1) of @(_deck.Count)
+        </p>
+    </div>
+
+    @if (_currentIndex < _deck.Count)
+    {
+        var currentItem = _deck[_currentIndex];
+        
+        <div class="flashcard-container">
+            <div class="flashcard @_animationClass" 
+                 @onpointerdown="OnPointerDown"
+                 @onpointermove="OnPointerMove"
+                 @onpointerup="OnPointerUp"
+                 @onpointerleave="OnPointerUp"
+                 style="@_cardStyle">
+                 
+                 <p class="category-label">@currentItem.Category</p>
+                 <h2>@currentItem.Text</h2>
+                 
+                 <div style="margin-top: 20px; color: var(--gray-400); font-size: 0.9rem;">
+                    (Drag or tap a button below)
+                 </div>
+            </div>
+        </div>
+
+        <div class="card-actions">
+            <button class="action-btn btn-nope" @onclick="SwipeLeft">
+                <!-- X icon -->
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <button class="action-btn btn-yes" @onclick="SwipeRight">
+                <!-- Check icon -->
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </button>
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center; margin-top: 50px;">
+            <div class="loading-progress">
+                <circle r="40%" cx="50%" cy="50%" stroke="var(--primary)" />
+            </div>
+            <p>Calculating your perfect matches...</p>
+        </div>
+    }
+
+</div>
+
+@code {
+    private class DeckItem
+    {
+        public string Category { get; set; }
+        public string Text { get; set; }
+    }
+
+    private List<string> _skills = new() { "Logic", "Math", "Problem Solving", "Creativity", "Visual Arts", "Leadership", "Communication", "Interpersonal", "Attention to Detail", "Empathy", "Analysis", "Design", "Physics", "Biology", "Ethics", "Listening", "Patience", "Organization", "Focus" };
+    private List<string> _knowledge = new() { "Technology", "Science", "Humanities", "History", "Economics", "Business", "Mathematics", "Biology", "Arts" };
+    private List<string> _hobbies = new() { "Gaming", "Coding", "Drawing", "Painting", "Photography", "Networking", "Public Speaking", "DIY", "Fixing things", "Building things", "Reading", "Volunteering", "Podcasts", "Sports", "Social Media", "Events", "Chess", "Travel" };
+
+    private List<DeckItem> _deck = new();
+    private int _currentIndex = 0;
+
+    private List<string> _selectedSkills = new();
+    private List<string> _selectedKnowledge = new();
+    private List<string> _selectedHobbies = new();
+
+    // Interaction State
+    private bool _isDragging = false;
+    private double _startX = 0;
+    private double _currentX = 0;
+    private string _animationClass = "";
+
+    protected override void OnInitialized()
+    {
+        // Build the deck by mixing categories
+        foreach (var s in _skills) _deck.Add(new DeckItem { Category = "Skill", Text = s });
+        foreach (var k in _knowledge) _deck.Add(new DeckItem { Category = "Knowledge", Text = k });
+        foreach (var h in _hobbies) _deck.Add(new DeckItem { Category = "Hobby", Text = h });
+
+        // Optionally shuffle the deck:
+        var rng = new Random();
+        _deck = _deck.OrderBy(x => rng.Next()).ToList();
+    }
+
+    private string _cardStyle
+    {
+        get
+        {
+            if (_isDragging)
+            {
+                var deltaX = _currentX - _startX;
+                var rotation = deltaX * 0.1; // Add an angle to the drag
+                return $"transform: translate({deltaX}px, 0) rotate({rotation}deg); transition: none;";
+            }
+            return "";
+        }
+    }
+
+    private void OnPointerDown(PointerEventArgs e)
+    {
+        _isDragging = true;
+        _startX = e.ClientX;
+        _currentX = e.ClientX;
+        _animationClass = ""; // Clear any active animation
+    }
+
+    private void OnPointerMove(PointerEventArgs e)
+    {
+        if (_isDragging)
+        {
+            _currentX = e.ClientX;
+        }
+    }
+
+    private async Task OnPointerUp(PointerEventArgs e)
+    {
+        if (!_isDragging) return;
+        _isDragging = false;
+
+        var deltaX = _currentX - _startX;
+        var threshold = 100; // Pixels needed to throw the card
+
+        if (deltaX > threshold)
+        {
+            await SwipeRight();
+        }
+        else if (deltaX < -threshold)
+        {
+            await SwipeLeft();
+        }
+        else
+        {
+            // Snap back
+            _animationClass = "";
+        }
+    }
+
+    private async Task SwipeLeft()
+    {
+        _animationClass = "swipe-out-left";
+        await Task.Delay(300); // Wait for animation
+        NextCard(false);
+    }
+
+    private async Task SwipeRight()
+    {
+        _animationClass = "swipe-out-right";
+        await Task.Delay(300); // Wait for animation
+        NextCard(true);
+    }
+
+    private void NextCard(bool accepted)
+    {
+        var item = _deck[_currentIndex];
+        
+        if (accepted)
+        {
+            if (item.Category == "Skill") _selectedSkills.Add(item.Text);
+            else if (item.Category == "Knowledge") _selectedKnowledge.Add(item.Text);
+            else if (item.Category == "Hobby") _selectedHobbies.Add(item.Text);
+        }
+
+        _currentIndex++;
+        _animationClass = ""; // Reset animation for next card
+        StateHasChanged();
+
+        if (_currentIndex >= _deck.Count)
+        {
+            FinishAssessment();
+        }
+    }
+
+    private void FinishAssessment()
+    {
+        AssessmentDataState.Current = new UserAssessment
+        {
+            SelectedSkills = _selectedSkills,
+            SelectedKnowledge = _selectedKnowledge,
+            SelectedHobbies = _selectedHobbies
+        };
+
+        Navigation.NavigateTo("/results");
+    }
+
+    public static class AssessmentDataState
+    {
+        public static UserAssessment Current { get; set; }
+    }
+}

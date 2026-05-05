@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CourseFinder.MainPage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid BackgroundColor="{StaticResource Background}">
+        <VerticalStackLayout Spacing="30"
+                             Padding="40"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center">
+
+            <Border StrokeThickness="0"
+                    Padding="20"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 40"
+                    HeightRequest="120"
+                    WidthRequest="120"
+                    HorizontalOptions="Center">
+                <Image Source="dotnet_bot.png"
+                       SemanticProperties.Description="Bot" />
+            </Border>
+
+            <Label Text="CareerMatch"
+                   Style="{StaticResource Headline}"
+                   TextColor="{StaticResource PrimaryLight}"
+                   FontSize="48" />
+
+            <Label Text="Discover your ideal college course based on your unique skills, knowledge, and hobbies."
+                   TextColor="{StaticResource Gray300}"
+                   FontSize="18"
+                   HorizontalTextAlignment="Center"
+                   MaximumWidthRequest="300" />
+
+            <Button Grid.Row="1"
+                    Text="Start Assessment"
+                    Clicked="OnStartClicked"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="{StaticResource White}"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    HeightRequest="60"
+                    WidthRequest="240"
+                    CornerRadius="30"
+                    Margin="0,40,0,0">
+                <Button.Shadow>
+                    <Shadow Brush="{StaticResource PrimaryBrush}"
+                            Offset="0,10"
+                            Radius="20"
+                            Opacity="0.3" />
+                </Button.Shadow>
+            </Button>
+
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>

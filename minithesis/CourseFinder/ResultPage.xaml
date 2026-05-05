@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CourseFinder.ResultPage"
+             xmlns:models="clr-namespace:CourseFinder.Models"
+             xmlns:converters="clr-namespace:CourseFinder.Converters"
+             Title="Top Matches"
+             BackgroundColor="{StaticResource Background}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:MatchToProgressConverter x:Key="MatchToProgressConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <VerticalStackLayout Padding="20" Spacing="20">
+        <Label Text="Your Future Starts Here"
+               Style="{StaticResource Headline}"
+               FontSize="24"
+               HorizontalOptions="Start" />
+        
+        <Label Text="Based on your profile, these courses offer the best alignment with your strengths."
+               TextColor="{StaticResource Gray400}" 
+               FontSize="14" />
+
+        <CollectionView x:Name="ResultsListView">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Course">
+                    <Border StrokeThickness="0"
+                            BackgroundColor="{StaticResource Surface}"
+                            Margin="0,0,0,15"
+                            Padding="20"
+                            StrokeShape="RoundRectangle 20">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="{Binding Name}"
+                                           FontAttributes="Bold"
+                                           FontSize="18"
+                                           TextColor="{StaticResource PrimaryLight}" />
+                                    <Label Text="{Binding Category}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource SecondaryLight}" />
+                                </VerticalStackLayout>
+                                
+                                <Label Grid.Column="1"
+                                       Text="{Binding MatchScore, StringFormat='{0:F0}%'}"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource Accent}" />
+                            </Grid>
+
+                            <Label Text="{Binding Description}"
+                                   TextColor="{StaticResource White}"
+                                   FontSize="14" />
+                            
+                            <ProgressBar Progress="{Binding MatchScore, Converter={StaticResource MatchToProgressConverter}}"
+                                         ProgressColor="{StaticResource Accent}"
+                                         HeightRequest="4" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Text="Take Assessment Again"
+                Clicked="OnRestartClicked"
+                BackgroundColor="Transparent"
+                BorderColor="{StaticResource Primary}"
+                BorderWidth="1"
+                TextColor="{StaticResource PrimaryLight}"
+                HeightRequest="50"
+                CornerRadius="25"
+                VerticalOptions="EndAndExpand" />
+    </VerticalStackLayout>
+</ContentPage>

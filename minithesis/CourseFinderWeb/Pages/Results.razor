@@ -1,0 +1,69 @@
+@page "/results"
+@inject NavigationManager Navigation
+@using CourseFinderWeb.Models
+@using CourseFinderWeb.Services
+@inject RecommenderService RecommendationEngine
+
+<div style="padding: 20px;">
+    @if (_recommendations == null)
+    {
+        <p>Loading results...</p>
+    }
+    else if (_recommendations.Count == 0)
+    {
+        <p>No matches found. Try selecting more attributes!</p>
+        <button class="btn-outline" @onclick="Restart">Restart Assessment</button>
+    }
+    else
+    {
+        <h2 class="section-title">Your Future Starts Here</h2>
+        <p class="section-subtitle">Based on your profile, these courses offer the best alignment with your strengths.</p>
+
+        <div style="margin-top: 30px;">
+            @foreach (var course in _recommendations)
+            {
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>
+                            <h3 class="course-title">@course.Name</h3>
+                            <p class="course-category">@course.Category</p>
+                        </div>
+                        <h2 class="match-score">@course.MatchScore.ToString("F0")%</h2>
+                    </div>
+
+                    <p class="course-desc">@course.Description</p>
+
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: @(course.MatchScore)%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button class="btn-outline" @onclick="Restart">Take Assessment Again</button>
+    }
+</div>
+
+@code {
+    private List<Course> _recommendations;
+
+    protected override void OnInitialized()
+    {
+        var assessment = Pages.Assessment.AssessmentDataState.Current;
+        if (assessment != null)
+        {
+            _recommendations = RecommendationEngine.GetRecommendations(assessment);
+        }
+        else
+        {
+            // If they land exactly on /results without data, bounce them back
+            Navigation.NavigateTo("/assessment");
+        }
+    }
+
+    private void Restart()
+    {
+        Pages.Assessment.AssessmentDataState.Current = null;
+        Navigation.NavigateTo("/");
+    }
+}
